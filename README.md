@@ -1,1 +1,1 @@
-# anilist-discord-sync
+a# anilist-discord-sync
