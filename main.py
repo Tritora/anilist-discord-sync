@@ -3,13 +3,28 @@ import os
 
 USER_ID = 514413
 
-discord_url = "https://discord.com/api/v9/applications/1521891841820069979/users/455056705244364801/identities/0/profile"
+# -----------------------------
+# Discord Bot 1
+# -----------------------------
+discord_url_1 = "https://discord.com/api/v9/applications/1521891841820069979/users/455056705244364801/identities/0/profile"
 
-headers = {
+headers_1 = {
     "Content-Type": "application/json",
     "Authorization": f"Bot {os.getenv('DISCORD_TOKEN')}",
     "User-Agent": "DiscordBot (https://github.com/discord/discord-api-docs, 1.0.0)"
 }
+
+# -----------------------------
+# Discord Bot 2
+# -----------------------------
+discord_url_2 = "https://discord.com/api/v9/applications/1524055331209084948/users/455056705244364801/identities/0/profile"
+
+headers_2 = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bot {os.getenv('DISCORD_TOKEN2')}",
+    "User-Agent": "DiscordBot (https://github.com/discord/discord-api-docs, 1.0.0)"
+}
+
 
 # -----------------------------
 # 1. AniList Activities
@@ -41,14 +56,18 @@ query ($userId: Int) {
 
 res = requests.post(
     "https://graphql.anilist.co",
-    json={"query": query, "variables": {"userId": USER_ID}}
+    json={
+        "query": query,
+        "variables": {"userId": USER_ID}
+    }
 )
 
 data = res.json()
 activities = data["data"]["Page"]["activities"]
 
+
 # -----------------------------
-# 2. 4 Activities bauen
+# 2. Activities erstellen
 # -----------------------------
 list_activities = []
 
@@ -57,6 +76,7 @@ for a in activities:
         continue
 
     media = a["media"]
+
     title = media["title"]["english"] or media["title"]["romaji"]
     media_type = media["type"]
     progress = a["progress"]
@@ -89,18 +109,20 @@ for a in activities:
         "cover": cover
     })
 
-    if len(list_activities) == 4:
+    if len(list_activities) == 5:
         break
 
-while len(list_activities) < 4:
+
+while len(list_activities) < 5:
     list_activities.append({
         "title": "",
         "desc": "",
         "cover": "https://via.placeholder.com/150"
     })
 
+
 # -----------------------------
-# 3. REAL AniList STATS (NEU)
+# 3. AniList Stats
 # -----------------------------
 stats_query = """
 query ($userId: Int) {
@@ -109,9 +131,14 @@ query ($userId: Int) {
       anime {
         count
         minutesWatched
+        episodesWatched
+        meanScore
       }
       manga {
         count
+        chaptersRead
+        volumesRead
+        meanScore
       }
     }
   }
@@ -120,51 +147,132 @@ query ($userId: Int) {
 
 stats_res = requests.post(
     "https://graphql.anilist.co",
-    json={"query": stats_query, "variables": {"userId": USER_ID}}
+    json={
+        "query": stats_query,
+        "variables": {"userId": USER_ID}
+    }
 )
 
-stats_data = stats_res.json()["data"]["User"]["statistics"]
+stats = stats_res.json()["data"]["User"]["statistics"]
 
-total_anime = stats_data["anime"]["count"]
-total_manga = stats_data["manga"]["count"]
+anime_stats = stats["anime"]
+manga_stats = stats["manga"]
 
-# minutes → days
-days_watched = round(stats_data["anime"]["minutesWatched"] / 1440, 1)
+total_anime = anime_stats["count"]
+total_manga = manga_stats["count"]
+episodes_watched = anime_stats["episodesWatched"]
+days_watched = round(anime_stats["minutesWatched"] / 1440, 1)
+mean_score = anime_stats["meanScore"]
+
+manga_mean_score = manga_stats["meanScore"]
+chapters_read = manga_stats["chaptersRead"]
+volumes_read = manga_stats["volumesRead"]
+
 
 # -----------------------------
-# 4. Discord Payload
+# 4. Payload Bot 1
 # -----------------------------
-payload = {
+payload_1 = {
     "data": {
         "dynamic": [
 
-            {"type": 3, "name": "Activity Pic 2", "value": {"url": list_activities[0]["cover"]}},
-            {"type": 1, "name": "Activity 2", "value": list_activities[0]["title"]},
-            {"type": 1, "name": "Activity Description 2", "value": list_activities[0]["desc"]},
+            {"type": 3, "name": "Activity Pic 1", "value": {"url": list_activities[0]["cover"]}},
+            {"type": 1, "name": "Activity 1", "value": list_activities[0]["title"]},
+            {"type": 1, "name": "Activity Description 1", "value": list_activities[0]["desc"]},
 
-            {"type": 3, "name": "Activity Pic 3", "value": {"url": list_activities[1]["cover"]}},
-            {"type": 1, "name": "Activity 3", "value": list_activities[1]["title"]},
-            {"type": 1, "name": "Activity Description 3", "value": list_activities[1]["desc"]},
+            {"type": 3, "name": "Activity Pic 2", "value": {"url": list_activities[1]["cover"]}},
+            {"type": 1, "name": "Activity 2", "value": list_activities[1]["title"]},
+            {"type": 1, "name": "Activity Description 2", "value": list_activities[1]["desc"]},
 
-            {"type": 3, "name": "Activity Pic 4", "value": {"url": list_activities[2]["cover"]}},
-            {"type": 1, "name": "Activity 4", "value": list_activities[2]["title"]},
-            {"type": 1, "name": "Activity Description 4", "value": list_activities[2]["desc"]},
+            {"type": 3, "name": "Activity Pic 3", "value": {"url": list_activities[2]["cover"]}},
+            {"type": 1, "name": "Activity 3", "value": list_activities[2]["title"]},
+            {"type": 1, "name": "Activity Description 3", "value": list_activities[2]["desc"]},
 
-            {"type": 3, "name": "Activity Pic 5", "value": {"url": list_activities[3]["cover"]}},
-            {"type": 1, "name": "Activity 5", "value": list_activities[3]["title"]},
-            {"type": 1, "name": "Activity Description 5", "value": list_activities[3]["desc"]},
+            {"type": 3, "name": "Activity Pic 4", "value": {"url": list_activities[3]["cover"]}},
+            {"type": 1, "name": "Activity 4", "value": list_activities[3]["title"]},
+            {"type": 1, "name": "Activity Description 4", "value": list_activities[3]["desc"]},
+
+            {"type": 3, "name": "Activity Pic 5", "value": {"url": list_activities[4]["cover"]}},
+            {"type": 1, "name": "Activity 5", "value": list_activities[4]["title"]},
+            {"type": 1, "name": "Activity Description 5", "value": list_activities[4]["desc"]},
 
             {"type": 1, "name": "Days Watched", "value": str(days_watched)},
             {"type": 1, "name": "Total Manga", "value": str(total_manga)},
-            {"type": 1, "name": "Total Anime", "value": str(total_anime)},
+            {"type": 1, "name": "Total Anime", "value": str(total_anime)}
         ]
     }
 }
 
-# -----------------------------
-# 5. PATCH senden
-# -----------------------------
-response = requests.patch(discord_url, headers=headers, json=payload)
 
-print(response.status_code)
-print(response.text)
+# -----------------------------
+# 5. Payload Bot 2
+# -----------------------------
+payload_2 = {
+    "data": {
+        "dynamic": [
+            {
+                "type": 1,
+                "name": "Total Anime",
+                "value": str(total_anime)
+            },
+            {
+                "type": 1,
+                "name": "Total Manga",
+                "value": str(total_manga)
+            },
+            {
+                "type": 1,
+                "name": "Episodes Watched",
+                "value": str(episodes_watched)
+            },
+            {
+                "type": 1,
+                "name": "Days Watched",
+                "value": str(days_watched)
+            },
+            {
+                "type": 1,
+                "name": "Mean Score Anime",
+                "value": str(mean_score)
+            },
+            {
+                "type": 1,
+                "name": "Chapters Read",
+                "value": str(chapters_read)
+            },
+            {
+                "type": 1,
+                "name": "Volumes Read",
+                "value": str(volumes_read)
+            },
+            {
+                "type": 1,
+                "name": "Mean Score Manga",
+                "value": str(manga_mean_score)
+            }
+        ]
+    }
+}
+
+
+# -----------------------------
+# 6. PATCH senden
+# -----------------------------
+response_1 = requests.patch(
+    discord_url_1,
+    headers=headers_1,
+    json=payload_1
+)
+
+response_2 = requests.patch(
+    discord_url_2,
+    headers=headers_2,
+    json=payload_2
+)
+
+
+print("Bot 1:", response_1.status_code)
+print(response_1.text)
+
+print("Bot 2:", response_2.status_code)
+print(response_2.text)
