@@ -38,6 +38,8 @@ query ($userId: Int) {
       ... on ListActivity {
         status
         progress
+        createdAt
+
         media {
           type
           title {
@@ -81,7 +83,13 @@ for a in activities:
     media_type = media["type"]
     progress = a["progress"]
     cover = media["coverImage"]["large"]
+    from datetime import datetime
 
+activity_time = datetime.fromtimestamp(
+    a["createdAt"]
+).strftime("%d.%m.%Y %H:%M")
+
+    
     status_map = {
         "watched episode": "Watched",
         "rewatched episode": "Rewatched",
@@ -98,15 +106,26 @@ for a in activities:
         a["status"].capitalize() if a["status"] else "Updated"
     )
 
-    if media_type == "ANIME":
+if pretty_status == "Completed":
+    desc = "Completed"
+
+elif media_type == "ANIME":
+    if progress:
         desc = f"{pretty_status} episode {progress}"
     else:
+        desc = pretty_status
+
+else:
+    if progress:
         desc = f"{pretty_status} chapter {progress}"
+    else:
+        desc = pretty_status
 
     list_activities.append({
         "title": title,
         "desc": desc,
         "cover": cover
+        "time": activity_time
     })
 
     if len(list_activities) == 5:
@@ -118,6 +137,7 @@ while len(list_activities) < 5:
         "title": "",
         "desc": "",
         "cover": "https://via.placeholder.com/150"
+        "time": ""
     })
 
 
@@ -179,6 +199,7 @@ payload_1 = {
             {"type": 3, "name": "Activity Pic 1", "value": {"url": list_activities[0]["cover"]}},
             {"type": 1, "name": "Activity 1", "value": list_activities[0]["title"]},
             {"type": 1, "name": "Activity Description 1", "value": list_activities[0]["desc"]},
+            {"type": 1, "name": "Activity Time 1", "value": list_activities[0]["time"]},
 
             {"type": 3, "name": "Activity Pic 2", "value": {"url": list_activities[1]["cover"]}},
             {"type": 1, "name": "Activity 2", "value": list_activities[1]["title"]},
