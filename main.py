@@ -1,5 +1,6 @@
 import requests
 import os
+from datetime import datetime
 
 USER_ID = 514413
 
@@ -83,11 +84,11 @@ for a in activities:
     media_type = media["type"]
     progress = a["progress"]
     cover = media["coverImage"]["large"]
-    from datetime import datetime
 
-activity_time = datetime.fromtimestamp(
-    a["createdAt"]
-).strftime("%d.%m.%Y %H:%M")
+
+    activity_time = datetime.fromtimestamp(
+        a["createdAt"]
+    ).strftime("%d.%m.%Y %H:%M")
 
     
     status_map = {
@@ -106,25 +107,25 @@ activity_time = datetime.fromtimestamp(
         a["status"].capitalize() if a["status"] else "Updated"
     )
 
-if pretty_status == "Completed":
-    desc = "Completed"
-
-elif media_type == "ANIME":
-    if progress:
-        desc = f"{pretty_status} episode {progress}"
+    if pretty_status == "Completed":
+        desc = "Completed"
+    
+    elif media_type == "ANIME":
+        if progress:
+            desc = f"{pretty_status} episode {progress}"
+        else:
+            desc = pretty_status
+    
     else:
-        desc = pretty_status
-
-else:
-    if progress:
-        desc = f"{pretty_status} chapter {progress}"
-    else:
-        desc = pretty_status
+        if progress:
+            desc = f"{pretty_status} chapter {progress}"
+        else:
+            desc = pretty_status
 
     list_activities.append({
         "title": title,
         "desc": desc,
-        "cover": cover
+        "cover": cover,
         "time": activity_time
     })
 
@@ -136,7 +137,7 @@ while len(list_activities) < 5:
     list_activities.append({
         "title": "",
         "desc": "",
-        "cover": "https://via.placeholder.com/150"
+        "cover": "https://via.placeholder.com/150",
         "time": ""
     })
 
