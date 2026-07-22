@@ -90,7 +90,7 @@ for a in activities:
     activity_time = (
         datetime.fromtimestamp(a["createdAt"], tz=timezone.utc)
         .astimezone(ZoneInfo("Europe/Berlin"))
-        .strftime("%d.%m.%Y %H:%M")
+        .strftime("%d.%m.%Y %H:%M %Z")
     )
 
     
