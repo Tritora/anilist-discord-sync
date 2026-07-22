@@ -1,6 +1,8 @@
 import requests
 import os
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
 
 USER_ID = 514413
 
@@ -85,10 +87,11 @@ for a in activities:
     progress = a["progress"]
     cover = media["coverImage"]["large"]
 
-
-    activity_time = datetime.fromtimestamp(
-        a["createdAt"]
-    ).strftime("%d.%m.%Y %H:%M")
+    activity_time = (
+        datetime.fromtimestamp(a["createdAt"], tz=timezone.utc)
+        .astimezone(ZoneInfo("Europe/Berlin"))
+        .strftime("%d.%m.%Y %H:%M")
+    )
 
     
     status_map = {
