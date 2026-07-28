@@ -325,7 +325,7 @@ response_2 = requests.patch(
     json=payload_2
 )
 
-
+print(anilist_avatar)
 print("Bot 1:", response_1.status_code)
 print(response_1.text)
 
