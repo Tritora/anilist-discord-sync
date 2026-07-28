@@ -143,31 +143,6 @@ while len(list_activities) < 5:
         "cover": "https://via.placeholder.com/150",
         "time": ""
     })
-
-# -----------------------------
-# AniList Profilbild
-# -----------------------------
-avatar_query = """
-query ($userId: Int) {
-  User(id: $userId) {
-    avatar {
-      large
-    }
-  }
-}
-"""
-
-avatar_res = requests.post(
-    "https://graphql.anilist.co",
-    json={
-        "query": avatar_query,
-        "variables": {"userId": USER_ID}
-    }
-)
-
-avatar_data = avatar_res.json()
-
-anilist_avatar = avatar_data["data"]["User"]["avatar"]["large"]
 # -----------------------------
 # 3. AniList Stats
 # -----------------------------
@@ -258,13 +233,6 @@ payload_1 = {
 payload_2 = {
     "data": {
         "dynamic": [
-            {
-                "type": 3,
-                "name": "pfp",
-                "value": {
-                    "url": anilist_avatar
-                }
-            },
             {
                 "type": 1,
                 "name": "Total Anime",
