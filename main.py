@@ -297,3 +297,5 @@ print(response_1.text)
 
 print("Bot 2:", response_2.status_code)
 print(response_2.text)
+print("TOKEN1:", len(os.getenv("DISCORD_TOKEN", "")))
+print("TOKEN2:", len(os.getenv("DISCORD_TOKEN2", "")))
