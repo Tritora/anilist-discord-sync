@@ -20,8 +20,9 @@ jobs:
 
       - name: Dependencies installieren
         run: pip install requests
-
+        
       - name: Script ausführen
         run: python main.py
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_TOKEN2: ${{ secrets.DISCORD_TOKEN2 }}
